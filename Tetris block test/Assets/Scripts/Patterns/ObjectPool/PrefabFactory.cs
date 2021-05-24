@@ -23,6 +23,7 @@ namespace ObjectPool
             tempGameObject.name = _name + _index.ToString();
             T objectOfType = tempGameObject.GetComponent<T>();
             _index++;
+            tempGameObject.SetActive(false);
             return objectOfType;
         }
     }

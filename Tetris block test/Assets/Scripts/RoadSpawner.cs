@@ -18,52 +18,55 @@ namespace TetrisGameSpace
             [SerializeField]
             FinishBlock _finishBlockPref;
 
-            private Pool<RoadBlock> _blockPool;
+            private Pool<RoadBlock> _roadPool;
             [SerializeField]
             private int _poolSize = 5;
 
             private Vector3 _nextBlockPosition = Vector3.zero;
             private float _blockLength;
 
+            private Queue<Gate> _gates;
+            private Gate _pickedGate => Utility.GetRandomElementFromQueue(ref _gates);
 
             private void Awake()
             {
                 _blockLength = _roadBlockPref.GetComponent<Renderer>().bounds.size.x;
-                _blockPool = new Pool<RoadBlock>(new PrefabFactory<RoadBlock>(_roadBlockPref.gameObject), _poolSize);
-            }
-            private void Start()
-            {                              
-                for (int i = 0; i < 3; i++)
-                    SpawnBlock();
+                _roadPool = new Pool<RoadBlock>(new PrefabFactory<RoadBlock>(_roadBlockPref.gameObject), _poolSize);
             }
 
-            private void SpawnBlock()
+            public void Init(List<Gate> gates)
+            {               
+                _gates = new Queue<Gate>(gates.ToArray());
+                for (int i = 0; i < 3; i++)
+                    SpawnRoad();
+            }
+
+            private void SpawnRoad()
             {
-                Debug.Log("Spawn");
-                if (ShouldSpawnAnotherBlock())
+                if (ShouldSpawnAnotherRoad())
                 {
-                    InstantiateNewBlock();
+                    InstantiateNewRoad();
                     _nextBlockPosition = CalculateNextBlockPosition();
                 }
                 else
                     InstantiateEndOfLevel();
             }
 
-            void InstantiateNewBlock()
+            void InstantiateNewRoad()
             {
-                RoadBlock block = _blockPool.Allocate();
+                RoadBlock road = _roadPool.Allocate();
                 
                 void handler(object sender, EventArgs e)
                 {
-                    _blockPool.Release(block);
-                    block.Death -= handler;
-                    SpawnBlock();
+                    _roadPool.Release(road);
+                    road.Death -= handler;
+                    SpawnRoad();
                 }
 
-                block.Death += handler;
-                block.gameObject?.SetActive(true);
-                block.transform.position = _nextBlockPosition;
-                block.Init();               
+                road.Death += handler;
+                road.gameObject.SetActive(true);
+                road.transform.position = _nextBlockPosition;
+                road.Init(_pickedGate);               
             }
 
             void InstantiateEndOfLevel()
@@ -77,7 +80,7 @@ namespace TetrisGameSpace
                 return _nextBlockPosition += Vector3.right * _blockLength;
             }
 
-            bool ShouldSpawnAnotherBlock()
+            bool ShouldSpawnAnotherRoad()
             {
                 if (_blocksOnLevel < 0) return false;
                 _blocksOnLevel--;

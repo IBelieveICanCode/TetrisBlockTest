@@ -28,7 +28,7 @@ namespace TetrisGameSpace
 
             void PlaceHeightBlocks()
             {
-                Vector3 startPosition = Vector3.up * 0.1f;
+                Vector3 startPosition = (Vector3.up * 0.1f) + (Vector3.forward * 0.01f); // we need to adjust our player to the middle of gate blocks 
                 GameObject parent = new GameObject("Player");
                 for (int i = 0; i < _numHeightBlocks; i++)
                 {                

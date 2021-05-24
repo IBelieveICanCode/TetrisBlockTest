@@ -12,6 +12,7 @@ namespace TetrisGameSpace
         {
             public event EventHandler Death;
 
+            Gate _gate;
             public void Reset()
             {
                 gameObject.SetActive(false);
@@ -22,8 +23,10 @@ namespace TetrisGameSpace
                 Death?.Invoke(this, null);
             }
 
-            public void Init()
+            public void Init(Gate gate)
             {
+                _gate = gate;
+                _gate.transform.position = transform.position;
             }
 
             void OnBecameInvisible()
