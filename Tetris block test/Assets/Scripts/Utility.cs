@@ -16,12 +16,11 @@ public class Utility
         return array;
     }
 
-    public static T GetRandomElementFromQueue<T>(ref Queue<T> queue) //To make sure element won't repeat twice in a row we must dequeue it before shuffling
-    {
-        T elem = queue.Dequeue();
-        int seed = UnityEngine.Random.Range(0, int.MaxValue);
-        queue = new Queue<T>(Utility.ShuffleArray(queue.ToArray(), seed));
-        queue.Enqueue(elem);
-        return elem;
-    }
+    //public static T GetRandomElementFromQueue<T>(Queue<T> queue)
+    //{
+    //    int seed = UnityEngine.Random.Range(0, int.MaxValue);
+    //    queue = new Queue<T>(Utility.ShuffleArray(queue.ToArray(), seed));
+    //    T elem = queue.Dequeue();
+    //    return elem;
+    //}
 }

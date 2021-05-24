@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 105d678f2dcbcf14388ed432c2adc01d, type: 3}
+  m_Name: Default
+  m_EditorClassIdentifier: 
+  PlayerSettings:
+    _blockPrefab: {fileID: 7662695373194801704, guid: aa0ba8d653827eb4381db5caeb4c5b57, type: 3}
+    _numHeightBlocks: 8
+    _numWidthBlocks: 5
+    _numDoubleBranches: 2
+    _gap: 0.11
+  GateSettings:
+    _gateBlock: {fileID: -4159197399941964469, guid: 837fcc11c02d85a49b56b182c7c9930a, type: 3}
+    _outerGate: {fileID: 6546178725340387757, guid: 1558a186fc78daf4c85ed7260982f6cb, type: 3}
+    _numInColumn: 8
+  RoadSettings:
+    _roadBlocksOnLevel: 10
+    _startRoad: {fileID: 6612278772503795030, guid: 527eef42845c38a4babfca3e2186d813, type: 3}
+    _roadBlock: {fileID: -5898501166735300509, guid: 78a673e72560fdf47b454f6bf7e36431, type: 3}
+    _finishBlockPref: {fileID: -957933880562857395, guid: 207e4d8527b11494181665d76f4a05ea, type: 3}

@@ -1,37 +1,61 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ObjectPool;
 using System;
 
-[RequireComponent(typeof(Rigidbody), typeof(BoxCollider))]
-public class GateBlock : MonoBehaviour, IResettable, IDieable
+namespace TetrisRunnerSpace
 {
-
-    public event EventHandler Death;
-    public bool IsPrepared = false; // variable which checks if all required blocks are removed for player to pass
-    public void Die()
+    namespace GateSpace
     {
-        Death?.Invoke(this, null);
-    }
-
-    public void Reset()
-    {
-        gameObject.SetActive(false);
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        ISpeedable player = other.GetComponentInParent<ISpeedable>();
-        if (player == null) return;
-        if (!IsPrepared)
+        [RequireComponent(typeof(Rigidbody), typeof(BoxCollider))]
+        public class GateBlock : MonoBehaviour
         {
-            IsPrepared = true;
-            Die();
+            private bool _isMoved;
+            public bool IsPrepared = false; // variable which checks if this block prevents player from moving past gate
+
+            private Vector3 _startPos;
+            private Rigidbody _rb;
+
+            public void Start()
+            {
+                _rb = GetComponent<Rigidbody>();
+                _rb.isKinematic = true;
+                BoxCollider col = GetComponent<BoxCollider>();
+                col.isTrigger = true;
+            }
+
+            private void Disable()
+            {
+                gameObject.SetActive(false);
+            }
+
+            public void Reset()
+            {
+                _rb.isKinematic = true;
+                if (_isMoved) transform.position = _startPos;
+                _isMoved = false;
+            }
+
+            private void OnTriggerEnter(Collider other)
+            {
+                if (!IsPrepared)
+                {
+                    IRotatable player = other.GetComponentInParent<IRotatable>();
+                    if (player == null) return;
+                    IsPrepared = true;
+                    Disable();
+                }
+                else
+                {
+                    ISpeedable playerSpeed = other.GetComponentInParent<ISpeedable>();
+                    if (playerSpeed == null) return;
+                    _isMoved = true;
+                    _startPos = transform.position;
+                    playerSpeed.SlowDown();
+                    _rb.isKinematic = false;
+                    _rb.AddForce(Vector3.right, ForceMode.Impulse);
+                }
+            }
         }
-
-
     }
-
-
 }

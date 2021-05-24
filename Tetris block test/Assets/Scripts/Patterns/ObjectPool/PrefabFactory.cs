@@ -2,7 +2,7 @@
 
 namespace ObjectPool
 {
-    public class PrefabFactory<T> : IFactory<T> where T : MonoBehaviour
+    public class PrefabFactory<T> : IFactorable<T> where T : MonoBehaviour
     {
         readonly GameObject _prefab;
         readonly string _name;
@@ -23,7 +23,7 @@ namespace ObjectPool
             tempGameObject.name = _name + _index.ToString();
             T objectOfType = tempGameObject.GetComponent<T>();
             _index++;
-            tempGameObject.SetActive(false);
+            //tempGameObject.SetActive(false);
             return objectOfType;
         }
     }

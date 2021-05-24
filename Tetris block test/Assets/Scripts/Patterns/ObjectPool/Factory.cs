@@ -1,10 +1,7 @@
-﻿namespace ObjectPool
+﻿public class Factory<T> : IFactorable<T> where T : new()
 {
-    public class Factory<T> : IFactory<T> where T : new()
+    public T Create()
     {
-        public T Create()
-        {
-            return new T();
-        }
+        return new T();
     }
 }

@@ -1,16 +1,46 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ObjectPool;
 
-public class Gate : MonoBehaviour
+namespace TetrisRunnerSpace
 {
-    private readonly List<GateBlock> _blocks = new List<GateBlock>();
-    public List<GateBlock> Blocks => _blocks;
-    public void DisableBlocks()
+    namespace GateSpace
     {
-        foreach (GateBlock block in _blocks)
+        public class Gate : MonoBehaviour, IResettable, IDieable
         {
-            block.IsPrepared = true;
+            private List<GateBlock> _blocks = new List<GateBlock>();
+            public List<GateBlock> Blocks => _blocks;
+
+            public event EventHandler Death;
+
+            public void Die()
+            {
+                Death?.Invoke(this, null);
+            }
+
+            public void BlocksArePrepared()
+            {
+                foreach (GateBlock block in _blocks)
+                {
+                    block.IsPrepared = true;
+                }
+            }
+
+            public void Reset()
+            {
+                foreach (GateBlock block in _blocks)
+                    block.Reset();
+                gameObject.SetActive(false);
+            }
+
+            public void PoolInit()
+            {
+                GateBlock[] blocks = GetComponentsInChildren<GateBlock>();
+                _blocks = new List<GateBlock>(blocks);
+                gameObject.SetActive(true);
+            }
         }
     }
 }

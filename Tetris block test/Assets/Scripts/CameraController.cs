@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
 
-namespace TetrisGameSpace
+namespace TetrisRunnerSpace
 {
     namespace PlayerSpace
     {
@@ -36,15 +36,16 @@ namespace TetrisGameSpace
                 _vcam.Follow = null;
             }
 
-            private void IncreaseOrtographicSize()
-            {
-                if (_vcam.m_Lens.OrthographicSize < Mathf.Lerp(_basicOrtographicSize, _maxOrtographicSize, _player.OrtographicCoef))
-                {
-                    _vcam.m_Lens.OrthographicSize += koef;
-                }
-                else if (_vcam.m_Lens.OrthographicSize > Mathf.Lerp(_basicOrtographicSize, _maxOrtographicSize, _player.OrtographicCoef))
-                    _vcam.m_Lens.OrthographicSize -= koef;
-            }
+            //TODO Change camera angle/height/rotation depending on speed
+            //private void IncreaseOrtographicSize()
+            //{
+            //    if (_vcam.m_Lens.OrthographicSize < Mathf.Lerp(_basicOrtographicSize, _maxOrtographicSize, _player.OrtographicCoef))
+            //    {
+            //        _vcam.m_Lens.OrthographicSize += koef;
+            //    }
+            //    else if (_vcam.m_Lens.OrthographicSize > Mathf.Lerp(_basicOrtographicSize, _maxOrtographicSize, _player.OrtographicCoef))
+            //        _vcam.m_Lens.OrthographicSize -= koef;
+            //}
         }
     }
 }

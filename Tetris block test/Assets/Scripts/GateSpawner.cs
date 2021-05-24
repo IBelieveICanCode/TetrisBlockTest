@@ -4,97 +4,103 @@ using System.Collections.Generic;
 using UnityEngine;
 using ObjectPool;
 
-namespace TetrisGameSpace
+namespace TetrisRunnerSpace
 {
-
-    public class GateSpawner : MonoBehaviour
+    namespace GateSpace
     {
-        [SerializeField]
-        GateBlock _gateBlock;
-        [SerializeField]
-        GameObject _outerGate;
-        Renderer _gateBottom;
-        [SerializeField]
-        int _height = 8;
-        readonly float _yGaps = 0.11f;
-
-        private MonoBehaviourFactory<Gate> _gateFactory;
-        private Pool<GateBlock> _blockPool;
-
-        private readonly List<Gate> _gates;
-        public List<Gate> Gates => _gates;
-        
-
-        private void Start()
+        public class GateSpawner
         {
-            _gateFactory = new MonoBehaviourFactory<Gate>("Gate");
-            IRotatable _player = FindObjectOfType<PlayerSpace.PlayerController>().GetComponent<IRotatable>();
-            for (int i = 0; i < 4; i++) // 4 times we will rotate player. That covers exactly 360 degrees
+            int _numInColumn;
+            GateBlock _gateBlock;
+            GameObject _outerGate;
+            float _gaps;
+            IRotatable _player;
+
+            Renderer _gateBottom;
+
+            //Explaining for this abominations at bottom of the script
+            private readonly List<Gate> _gates = new List<Gate>();
+            private readonly Queue<Pool<Gate>> _gatePools = new Queue<Pool<Gate>>();
+            public Queue<Pool<Gate>> GatePools => _gatePools;
+            public GateSpawner(IRotatable player, GateSettings settings, float gap)
             {
-                CreateNewGate();
+                _numInColumn = settings.NumInColumn;
+                _gateBlock = settings.GateBlock;
+                _outerGate = settings.OuterGate;
+                _gaps = gap;
+                _player = player;
             }
-            StartCoroutine(ExcludeBlocksFromGates(_player));
-
-        }
-
-
-        void CreateNewGate()
-        {
-            Gate gate = _gateFactory.Create();
-
-            GameObject futureBottom = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            futureBottom.name = "GateBottom";
-            futureBottom.transform.localScale = new Vector3(0.1f, 0.01f, 1);
-            futureBottom.transform.parent = gate.transform;
-            _gateBottom = futureBottom.GetComponent<Renderer>();
-
-            GameObject outerGate =  Instantiate(_outerGate);
-            outerGate.name = "DecorGate";
-            outerGate.transform.parent = gate.transform;
-
-            _blockPool = new Pool<GateBlock>(new PrefabFactory<GateBlock>(_gateBlock.gameObject), 10);
-            float gaps = 0.1f;
-            int row = Mathf.RoundToInt((_gateBottom.bounds.size.z / 0.11f)) - 1;// so we can skip last element. We don't need a cubes to be spawned in gate panels
-
-            for (int i = 0; i < _height; i++)
+            public void CreateGatePools()
             {
-                float threshold = 0;
-                for (int k = 1; k < row; k++) //Same but for first element
+                for (int i = 0; i < 4; i++) // I hardcoded it cos we we will rotate player 4 times for 90 degrees. That covers exactly 360 degrees
+                    CreateNewTypeOfGate();
+
+                Gate gate = new MonoBehaviourFactory<Gate>("Gate").Create();
+                gate.StartCoroutine(ExcludeBlocksFromGates()); //I needed any Monobehaviour to start coroutine
+            }
+
+            void CreateNewTypeOfGate()
+            {
+                Gate gate = new MonoBehaviourFactory<Gate>("Gate").Create();
+                GameObject futureBottom = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                futureBottom.name = "GateBottom";
+                futureBottom.transform.localScale = new Vector3(_gaps, 0.01f, 1);
+                futureBottom.transform.parent = gate.transform;
+                _gateBottom = futureBottom.GetComponent<Renderer>();
+
+                GameObject outerGate = GameObject.Instantiate(_outerGate);
+                outerGate.name = "DecorGate";
+                outerGate.transform.parent = gate.transform;
+
+                GateSpeedUpPlayer speedUpcollider = new MonoBehaviourFactory<GateSpeedUpPlayer>("Speed up Col").Create();
+                speedUpcollider.transform.position += Vector3.right * 0.2f; //We need to place it just behind the gate +-
+                speedUpcollider.transform.parent = gate.transform;
+                speedUpcollider.transform.eulerAngles = Vector3.zero;
+
+                float yGaps = 0.1f;
+                int numInRow = Mathf.RoundToInt((_gateBottom.bounds.size.z / _gaps)) - 1;// so we can skip last element. We don't need a cubes to be spawned in gate panels
+                for (int i = 0; i < _numInColumn; i++)
                 {
-                    threshold += _yGaps;
-
-                    GateBlock block = _blockPool.Allocate();
-                    void handler(object sender, EventArgs e)
+                    float xGaps = 0;
+                    for (int k = 1; k < numInRow; k++) //We start from 1 element, for the same reason but for the first element
                     {
-                        _blockPool.Release(block);
-                        block.Death -= handler;
+                        xGaps += _gaps;
+
+                        GateBlock block = GameObject.Instantiate(_gateBlock);
+                        block.transform.position = new Vector3(_gateBottom.bounds.max.x - 0.05f, yGaps, _gateBottom.bounds.max.z - 0.05f - xGaps);
+                        block.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+                        block.transform.parent = _gateBottom.transform;
+
+                        gate.Blocks.Add(block);
                     }
-                    block.Death += handler;
-
-                    block.gameObject.SetActive(true);
-                    block.transform.position = new Vector3(_gateBottom.bounds.max.x - 0.05f, gaps, _gateBottom.bounds.max.z - 0.05f - threshold);
-                    block.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-                    block.transform.parent = _gateBottom.transform;
-
-                    gate.Blocks.Add(block);
+                    yGaps += _gaps;
                 }
-                gaps += _yGaps;
+                _gates.Add(gate);
+                gate.gameObject.SetActive(false);
             }
-            _gates.Add(gate);
-            gate.gameObject.SetActive(false);
-        }
 
-        //Every block has OnTriggerEnter method, which triggers on player blocks after one frame. 
-        //So we wait one frame, disable blocks and rotate player 90 degrees. Repeat with all gate "prefabs" we have
-        IEnumerator ExcludeBlocksFromGates(IRotatable player)   
-        {
-            for (int i = 0; i < _gates.Count; i++)
+            //Every block has OnTriggerEnter method, which triggers on player, we wait for physics to work, disable blocks and rotate player 90 degrees. Repeat with all gate "prefabs" we have
+            IEnumerator ExcludeBlocksFromGates()
             {
-                _gates[i].gameObject.SetActive(true);
-                yield return new WaitForEndOfFrame();
-                _gates[i].DisableBlocks();
-                _gates[i].gameObject.SetActive(false);
-                player.Rotate(-90);
+                for (int i = 0; i < _gates.Count; i++)
+                {
+                    _gates[i].gameObject.SetActive(true);
+                    yield return new WaitForFixedUpdate();
+                    _gates[i].BlocksArePrepared();
+                    _gates[i].gameObject.SetActive(false);
+                    _player.Rotate(-90);
+                }
+                CreateObjectPoolsForGates();
+            }
+
+            //We want to pool every 4 of our "prefab" gates we create, so we don't instantiate them every time we need a gate
+            void CreateObjectPoolsForGates()
+            {
+                foreach (Gate gate in _gates)
+                {
+                    Pool<Gate> newPool = new Pool<Gate>(new PrefabFactory<Gate>(gate.gameObject));
+                    _gatePools.Enqueue(newPool);
+                }
             }
         }
     }

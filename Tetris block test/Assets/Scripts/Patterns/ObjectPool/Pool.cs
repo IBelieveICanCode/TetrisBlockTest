@@ -4,15 +4,15 @@ using System.Collections.Generic;
 
 namespace ObjectPool
 {
-	public class Pool<T> : IEnumerable where T : IResettable
+	public class Pool<T> : IEnumerable where T : IResettable, IDieable
 	{
 
 		public List<T> Members = new List<T>();
 		public HashSet<T> Unavailable = new HashSet<T>();
-        readonly IFactory<T> _factory;
-		public Pool(IFactory<T> factory) : this(factory, 5) { }
+        readonly IFactorable<T> _factory;
+		public Pool(IFactorable<T> factory) : this(factory, 5) { }
 
-		public Pool(IFactory<T> factory, int poolSize)
+		public Pool(IFactorable<T> factory, int poolSize = 2)
 		{
 			this._factory = factory;
 
@@ -46,6 +46,7 @@ namespace ObjectPool
 		T Create()
 		{
 			T member = _factory.Create();
+			member.PoolInit();
 			Members.Add(member);
 			return member;
 		}

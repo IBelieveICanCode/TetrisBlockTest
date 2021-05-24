@@ -4,78 +4,87 @@ using System.Collections.Generic;
 using UnityEngine;
 using ObjectPool;
 
-namespace TetrisGameSpace
+namespace TetrisRunnerSpace
 {
     namespace RoadSpace
     {
-        public class RoadSpawner : MonoBehaviour
+        public class RoadSpawner
         {
-            [SerializeField]
-            private int _blocksOnLevel = 10;
-
-            [SerializeField]
-            RoadBlock _roadBlockPref;
-            [SerializeField]
+            private int _blocksOnLevel;
+            GameObject _startRoadPref;
+            Road _roadBlockPref;
             FinishBlock _finishBlockPref;
-
-            private Pool<RoadBlock> _roadPool;
-            [SerializeField]
-            private int _poolSize = 5;
 
             private Vector3 _nextBlockPosition = Vector3.zero;
             private float _blockLength;
 
-            private Queue<Gate> _gates;
-            private Gate _pickedGate => Utility.GetRandomElementFromQueue(ref _gates);
+            private Pool<Road> _roadPool;
+            Queue<Pool<GateSpace.Gate>> _gatePools;
 
-            private void Awake()
+            public RoadSpawner(RoadSettings settings)
             {
+                _blocksOnLevel = settings.RoadBlocksOnLevel;
+                _startRoadPref = settings.StartingRoad;
+                _roadBlockPref = settings.RoadBlock;
+                _finishBlockPref = settings.FinishBlock;
+
                 _blockLength = _roadBlockPref.GetComponent<Renderer>().bounds.size.x;
-                _roadPool = new Pool<RoadBlock>(new PrefabFactory<RoadBlock>(_roadBlockPref.gameObject), _poolSize);
+
+                _roadPool = new Pool<Road>(new PrefabFactory<Road>(_roadBlockPref.gameObject));
             }
 
-            public void Init(List<Gate> gates)
+            public void CreateStartRoad(Queue<Pool<GateSpace.Gate>> gatePools)
             {               
-                _gates = new Queue<Gate>(gates.ToArray());
+                _gatePools = gatePools;
+                InstantiateStartRoad();
+            }
+
+            public void StartGame()
+            {
                 for (int i = 0; i < 3; i++)
                     SpawnRoad();
             }
 
-            private void SpawnRoad()
+            void SpawnRoad()
             {
                 if (ShouldSpawnAnotherRoad())
                 {
-                    InstantiateNewRoad();
+                    InstantiateNewRoadElement();
                     _nextBlockPosition = CalculateNextBlockPosition();
                 }
                 else
-                    InstantiateEndOfLevel();
+                    InstantiateEndOfRoad();
             }
 
-            void InstantiateNewRoad()
+            void InstantiateStartRoad()
             {
-                RoadBlock road = _roadPool.Allocate();
-                
+                GameObject startRoad = GameObject.Instantiate(_startRoadPref);
+                startRoad.transform.position = _nextBlockPosition;
+                CalculateNextBlockPosition();
+            }
+
+            void InstantiateNewRoadElement()
+            {
+                Road road = _roadPool.Allocate();            
                 void handler(object sender, EventArgs e)
                 {
                     _roadPool.Release(road);
                     road.Death -= handler;
                     SpawnRoad();
                 }
-
                 road.Death += handler;
-                road.gameObject.SetActive(true);
                 road.transform.position = _nextBlockPosition;
-                road.Init(_pickedGate);               
+                GateSpace.Gate gate = GetRandomGate();
+                road.Init(gate);               
             }
 
-            void InstantiateEndOfLevel()
+            void InstantiateEndOfRoad()
             {
-                FinishBlock finish = Instantiate(_finishBlockPref);
+                FinishBlock finish = GameObject.Instantiate(_finishBlockPref);
                 finish.transform.position = _nextBlockPosition;
             }
 
-            private Vector3 CalculateNextBlockPosition()
+            Vector3 CalculateNextBlockPosition()
             {
                 return _nextBlockPosition += Vector3.right * _blockLength;
             }
@@ -86,6 +95,20 @@ namespace TetrisGameSpace
                 _blocksOnLevel--;
                 return true;
 
+            }
+
+            GateSpace.Gate GetRandomGate()
+            {
+                Pool<GateSpace.Gate> pool = _gatePools.Dequeue();
+                GateSpace.Gate myGate = pool.Allocate();
+                void handler(object sender, EventArgs e)
+                {
+                    pool.Release(myGate);
+                    myGate.Death -= handler;
+                }
+                myGate.Death += handler;
+                _gatePools.Enqueue(pool);
+                return myGate;
             }
         }
     } 
