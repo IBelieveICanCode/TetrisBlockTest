@@ -37,7 +37,7 @@ namespace TetrisRunnerSpace
                 
                 if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
                     _endTouchPos = Input.GetTouch(0).position;
-
+                {
                     Vector3 dirToRot = (Vector3.right * (_endTouchPos.x - _startTouchPos.x)).normalized;
                     float yAxisRotation = 90 * dirToRot.x;
                     Rotate(yAxisRotation);
