@@ -24,17 +24,15 @@ namespace TetrisRunnerSpace
             public void BlocksArePrepared()
             {
                 foreach (GateBlock block in _blocks)
-                {
                     block.IsPrepared = true;
-                }
             }
 
             public void Reset()
             {
                 foreach (GateBlock block in _blocks)
-                    block.Reset();
+                    block.Reset(); //restore positions of blocks
                 gameObject.SetActive(false);
-                _speedUp.gameObject.SetActive(true);
+                _speedUp.gameObject.SetActive(true); //activate speed up collider. It was disabled after contacting player
             }
 
             public void PoolInit()

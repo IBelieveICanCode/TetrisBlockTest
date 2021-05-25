@@ -36,16 +36,18 @@ namespace TetrisRunnerSpace
                 _isMoved = false;
             }
 
+            // we need to remove blocks which makes impossible for player to traverse through gate. 
+            //We make them all prepared after first creation in Gate class
             private void OnTriggerEnter(Collider other)
             {
-                if (!IsPrepared)
+                if (!IsPrepared) 
                 {
                     IRotatable player = other.GetComponentInParent<IRotatable>();
                     if (player == null) return;
                     IsPrepared = true;
                     Disable();
                 }
-                else
+                else 
                 {
                     ISpeedable playerSpeed = other.GetComponentInParent<ISpeedable>();
                     if (playerSpeed == null) return;
