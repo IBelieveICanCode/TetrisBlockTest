@@ -15,6 +15,9 @@ namespace TetrisRunnerSpace
 
         [SerializeField]
         UnityEvent _startGame;
+        [SerializeField]
+        UnityEvent _endLevel;
+
         //TODO add SaveController
         public int Score
         {
@@ -33,7 +36,7 @@ namespace TetrisRunnerSpace
 
         public void FinishGame()
         {
-            _hud.ShowEndOfLevel();
+            _endLevel.Invoke();
         }
 
         public static string GetScoreReadableValue()

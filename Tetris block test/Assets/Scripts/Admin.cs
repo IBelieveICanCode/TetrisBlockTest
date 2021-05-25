@@ -4,6 +4,7 @@ using UnityEngine;
 using TetrisRunnerSpace.PlayerSpace;
 using TetrisRunnerSpace.RoadSpace;
 using TetrisRunnerSpace.GateSpace;
+using UnityEngine.SceneManagement;
 
 namespace TetrisRunnerSpace
 {
@@ -17,9 +18,14 @@ namespace TetrisRunnerSpace
         PlayerController _player;
 
         RoadSpawner _roadSpawner;
-        void Start()
-        {
 
+        private void Start()
+        {
+            InitLevel();
+        }
+        public void InitLevel()
+        {
+            //if (_player != null) Destroy(_player);
             PlayerCreator playerCreator = new PlayerCreator(_settings.PlayerConstructSettings);
             _player = playerCreator.CreatePlayer();
 
@@ -36,6 +42,11 @@ namespace TetrisRunnerSpace
         {
             _roadSpawner.StartSpawnMainRoad();
             _player.gameObject.AddComponent<PlayerSpeedControl>().Init(_settings.PlayerSpeedSettings);
+        }
+
+        public void LoadNewLevel()
+        {
+            SceneManager.LoadScene(0);
         }
 
     }

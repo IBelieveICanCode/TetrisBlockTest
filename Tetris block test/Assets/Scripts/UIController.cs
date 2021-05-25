@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 namespace TetrisRunnerSpace
 {
@@ -13,14 +14,20 @@ namespace TetrisRunnerSpace
             [SerializeField]
             TMP_Text _scores;
             [SerializeField]
+            TMP_Text _finalScores;
+            [SerializeField]
             TMP_Text _countDownText;
+            [SerializeField]
+            GameObject _finalPanel;
             public void UpdateUI()
             {
                 _scores.text = LevelProgress.GetScoreReadableValue();
+                _finalScores.text = _scores.text; //TODO Save final scorees differently
             }
             private void Start()
             {
                 StartCountDown();
+                _finalPanel.SetActive(false);
             }
 
             public void StartCountDown()
@@ -31,8 +38,8 @@ namespace TetrisRunnerSpace
             public void ShowEndOfLevel()
             {
                 //TODO Score count
+                _finalPanel.SetActive(true);
             }
-
 
             private IEnumerator CountDown()
             {
