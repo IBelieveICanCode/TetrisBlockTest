@@ -6,11 +6,10 @@ namespace ObjectPool
 {
 	public class Pool<T> : IEnumerable where T : IResettable, IDieable
 	{
-
 		public List<T> Members = new List<T>();
 		public HashSet<T> Unavailable = new HashSet<T>();
         readonly IFactorable<T> _factory;
-		public Pool(IFactorable<T> factory) : this(factory, 5) { }
+		public Pool(IFactorable<T> factory) : this(factory, 2) { }
 
 		public Pool(IFactorable<T> factory, int poolSize = 2)
 		{

@@ -12,17 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 105d678f2dcbcf14388ed432c2adc01d, type: 3}
   m_Name: Default
   m_EditorClassIdentifier: 
-  PlayerSettings:
+  PlayerConstructSettings:
     _blockPrefab: {fileID: 7662695373194801704, guid: aa0ba8d653827eb4381db5caeb4c5b57, type: 3}
     _numHeightBlocks: 8
     _numWidthBlocks: 5
-    _numDoubleBranches: 2
+    _numDoubleBranches: 3
     _gap: 0.11
+  PlayerSpeedSettings:
+    _timeToSpeedUpFromZero: 2
+    _acceleration: 0.31
+    _maxSpeed: 7
+    _minSpeed: 3
   GateSettings:
     _gateBlock: {fileID: -4159197399941964469, guid: 837fcc11c02d85a49b56b182c7c9930a, type: 3}
     _outerGate: {fileID: 6546178725340387757, guid: 1558a186fc78daf4c85ed7260982f6cb, type: 3}
     _numInColumn: 8
   RoadSettings:
+    _numStartSpawn: 3
     _roadBlocksOnLevel: 10
     _startRoad: {fileID: 6612278772503795030, guid: 527eef42845c38a4babfca3e2186d813, type: 3}
     _roadBlock: {fileID: -5898501166735300509, guid: 78a673e72560fdf47b454f6bf7e36431, type: 3}

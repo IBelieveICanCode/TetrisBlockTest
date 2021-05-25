@@ -10,13 +10,14 @@ namespace TetrisRunnerSpace
     [CreateAssetMenu(menuName = "GameSettings/Create Game Settings", fileName = "Settings")]
     public class GameSettings : ScriptableObject
     {
-        public PlayerSettings PlayerSettings;
+        public PlayerConstructSettings PlayerConstructSettings;
+        public PlayerSpeedSettings PlayerSpeedSettings;
         public GateSettings GateSettings;
         public RoadSettings RoadSettings;
     }
 
     [System.Serializable]
-    public struct PlayerSettings
+    public struct PlayerConstructSettings
     {
         [SerializeField]
         private GameObject _blockPrefab;
@@ -26,16 +27,32 @@ namespace TetrisRunnerSpace
         private int _numWidthBlocks;
         [SerializeField]
         private int _numDoubleBranches;
-        [Range(0, 1.5f)]
-        [SerializeField]
-        private float _gap;
 
         public GameObject BlockPrefab => _blockPrefab;
         public int NumHeightBlocks => _numHeightBlocks;
         public int NumWidthBlocks => _numWidthBlocks;
         public int NumDoubleBranches => _numDoubleBranches;
-        public float Gap => _gap;
     }
+
+    [System.Serializable]
+    public struct PlayerSpeedSettings
+    {
+        [SerializeField]
+        private  float _timeToSpeedUpFromZero; // seconds to accelerate from zero to minimum speed
+        [Range(0, 2f)]
+        [SerializeField]
+        private float _acceleration;
+        [SerializeField]
+        private float _maxSpeed;
+        [SerializeField]
+        private float _minSpeed;
+
+        public float TimeToSpeedUpFromZero => _timeToSpeedUpFromZero;
+        public float Acceleration => _acceleration;
+        public float MaxSpeed => _maxSpeed;
+        public float MinSpeed => _minSpeed;
+    }
+
 
     [System.Serializable]
     public struct GateSettings
@@ -51,22 +68,26 @@ namespace TetrisRunnerSpace
         public GameObject OuterGate => _outerGate;
         public int NumInColumn => _numInColumn;
     }
+
     [System.Serializable]
     public struct RoadSettings
     {
+        [SerializeField]
+        private int _numStartSpawn;
         [SerializeField]
         private int _roadBlocksOnLevel;
         [SerializeField]
         GameObject _startRoad;
         [SerializeField]
         Road _roadBlock;
-    [SerializeField]
-        FinishBlock _finishBlockPref;
+        [SerializeField]
+        FinishRoad _finishBlockPref;
 
+        public int NumStartSpawn => _numStartSpawn;
         public int RoadBlocksOnLevel => _roadBlocksOnLevel;
         public GameObject StartingRoad => _startRoad;
         public Road RoadBlock => _roadBlock;
-        public FinishBlock FinishBlock => _finishBlockPref;
+        public FinishRoad FinishBlock => _finishBlockPref;
 
     }
 }

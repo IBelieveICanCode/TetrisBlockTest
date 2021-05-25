@@ -8,14 +8,23 @@ namespace TetrisRunnerSpace
     {
         public class PlayerSpeedControl : MonoBehaviour, ISpeedable
         {
-            private readonly float _timeToSpeedUp = 2; // seconds to accelerate from zero to minimum speed
-            private float _speed = 1;
-            private float _acceleration = 0.2f;
-            private float _maxSpeed = 7;
-            private float _minSpeed = 5;
+            private float _timeToSpeedUp; // seconds to accelerate from zero to minimum speed
+            private float _acceleration;
+            private float _maxSpeed;
+            private float _minSpeed;
 
+            private float _speed;
             private bool _isSlowedDown;
             public bool IsSlowedDown => _isSlowedDown;
+
+            public void Init(PlayerSpeedSettings settings)
+            {
+                _timeToSpeedUp = settings.TimeToSpeedUpFromZero;
+                _acceleration = settings.Acceleration;
+                _maxSpeed = settings.MaxSpeed;
+                _minSpeed = settings.MinSpeed;
+                _speed = _minSpeed;
+            }
                 
             private void Update()
             {
@@ -27,16 +36,14 @@ namespace TetrisRunnerSpace
                 transform.Translate(Vector3.right * _speed * Time.deltaTime, Space.World);
             }
 
-            public void SpeedUp()
+            public void SpeedUp() // if we hit blocks beforehand we can't accelerate
             {
-                if (IsSlowedDown)
-                {
+                if (IsSlowedDown) //TODO StateMachine for player
                     _isSlowedDown = false;
-                }
                 else
                 {
-                    Debug.Log("accelerate");
                     _speed += _acceleration;
+                    LevelProgress.Instance.Score += 1000;
                     if (_speed > _maxSpeed)
                         _speed = _maxSpeed;
                 }
@@ -48,6 +55,7 @@ namespace TetrisRunnerSpace
                 {
                     _isSlowedDown = true;
                     StartCoroutine(SlowDownCor());
+                    LevelProgress.Instance.Score -= 1000;
                 }
             }
             IEnumerator SlowDownCor()

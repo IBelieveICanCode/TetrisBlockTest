@@ -3,6 +3,6 @@
     public interface IResettable
     {
         void Reset();
-        void PoolInit();
+        void PoolInit(); // calls when you instantiate an object inside the pool
     }
 }

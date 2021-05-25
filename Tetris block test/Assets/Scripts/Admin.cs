@@ -12,25 +12,30 @@ namespace TetrisRunnerSpace
     {
         [SerializeField]
         GameSettings _settings;
+        [SerializeField]
+        CameraController _cameraSettings; //ToDo separate settings for camera
+        PlayerController _player;
 
-        IEnumerator Start()
+        RoadSpawner _roadSpawner;
+        void Start()
         {
-            PlayerCreator playerCreator = new PlayerCreator(_settings.PlayerSettings);
-            PlayerController player = playerCreator.CreatePlayer();
 
-            GateSpawner gateSpawner = new GateSpawner(player.GetComponent<IRotatable>(), _settings.GateSettings, _settings.PlayerSettings.Gap);
+            PlayerCreator playerCreator = new PlayerCreator(_settings.PlayerConstructSettings);
+            _player = playerCreator.CreatePlayer();
+
+            GateSpawner gateSpawner = new GateSpawner(_player.GetComponent<IRotatable>(), _settings.GateSettings);
             gateSpawner.CreateGatePools();
 
-            RoadSpawner roadSpawner = new RoadSpawner(_settings.RoadSettings);
-            roadSpawner.CreateStartRoad(gateSpawner.GatePools);
+            _roadSpawner = new RoadSpawner(_settings.RoadSettings);
+            _roadSpawner.Init(gateSpawner.GatePools);
 
-            yield return new WaitForSeconds(5);
-            roadSpawner.StartGame();
-            player.gameObject.AddComponent<PlayerSpeedControl>();
+            _cameraSettings.Init(_player.GetComponent<ICameraControllable>());
+        }
 
-
-
-
+        public void StartGame()
+        {
+            _roadSpawner.StartSpawnMainRoad();
+            _player.gameObject.AddComponent<PlayerSpeedControl>().Init(_settings.PlayerSpeedSettings);
         }
 
     }

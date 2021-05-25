@@ -14,28 +14,37 @@ namespace TetrisRunnerSpace
 
             void Update()
             {
-                ControlPlayer();
-                //Debug.Log(_speed);               
+                ControlPlayer();              
             }
 
             void ControlPlayer()
             {
-                //if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+#if UNITY_EDITOR
                 if (Input.GetMouseButtonDown(0))
-                {
-                    _startTouchPos = Input.mousePosition;//Input.GetTouch(0).position;
-                }
-                //if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
+                    _startTouchPos = Input.mousePosition;
                 if (Input.GetMouseButtonUp(0))
                 {
-                    //_endTouchPos = Input.GetTouch(0).position;
                     _endTouchPos = Input.mousePosition;
 
                     Vector3 dirToRot = (Vector3.right * (_endTouchPos.x - _startTouchPos.x)).normalized;
                     float yAxisRotation = 90 * dirToRot.x;
                     Rotate(yAxisRotation);
                 }
-            }          
+
+#else
+               if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+                    _startTouchPos = Input.GetTouch(0).position;
+                
+                if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
+                    _endTouchPos = Input.GetTouch(0).position;
+
+                    Vector3 dirToRot = (Vector3.right * (_endTouchPos.x - _startTouchPos.x)).normalized;
+                    float yAxisRotation = 90 * dirToRot.x;
+                    Rotate(yAxisRotation);
+                }
+#endif
+            }
+
 
             public void Rotate(float angle)
             {
